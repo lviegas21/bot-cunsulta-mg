@@ -2,7 +2,7 @@ import telebot
 
 from bot_cliente import cadastro as cad
 
-CHAVE_API = "5794347537:AAH8VbUo1TcFqZDBBbZugmb20JZ4NnTmItY"
+CHAVE_API = ""
 
 bot = telebot.TeleBot(CHAVE_API)
 
