@@ -3,7 +3,12 @@ import re
 import requests as rq
 
 
-
+class User:
+    def __init__(self, chat_id, nome, telefone, cpf):
+        self.chat_id = chat_id
+        self.nome = nome
+        self.telefone = telefone
+        self.cpf = cpf
 
 def cadastro( nome, cpf, telefone):
         if nome != '' and cpf != '' and telefone != '':

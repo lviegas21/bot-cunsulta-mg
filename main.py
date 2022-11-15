@@ -1,131 +1,54 @@
-import telebot
+from app_base import app, user, pedido
+from pyrogram.handlers import MessageHandler
 
-from bot_cliente import cadastro as cad
-try:
-    CHAVE_API = "5794347537:AAH8VbUo1TcFqZDBBbZugmb20JZ4NnTmItY"
+from controllers.bot_cliente import User
+from controllers.bot_pedido import Pedido
+from views.views_cadastro import callbacks
+from views.view_pedido import pedidos, pedido_one, pedido_two, pedido_three, escolhas, fechando_carrinho, anotando_pedido
+from pyrogram import Client, filters
+import re
+from pyrogram.types import (
+    InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
+)
 
-    bot = telebot.TeleBot(CHAVE_API)
+@app.on_message(filters.command('help') |filters.command('start'))
+async def start_command(client, message):
+    user["{0}".format(message.chat.id)] = User(message.chat.id, nome='', telefone='', cpf='')
+    pedido["{0}".format(message.chat.id)] = Pedido(chat_id=message.chat.id, quantidade='', id_produto='')
+    await message.reply(
+        'Esse é o menu para pedir ajuda!\n'
+        'Use **/start** para iniciar o bot!\n'
+        'Use **/menu** para esse menu em teclado!\n'
+        'Use **/comandos** para saber o que é possivel fazer!\n'
+        'Use **/pedidos** para fazer seu pedido!\n'
+        'Use **/teclado** para ver um teclado de comandos\n'
+        'Use **/dev** para ver por quem foi desenvolvido\n'
 
-    user = {}
 
-    @bot.message_handler(commands=["Agua 1L"])
-    def pizza(mensagem):
-        bot.send_message(mensagem.chat.id, "Qual a quantidade desejas?")
+    )
 
-    @bot.message_handler(commands=["Agua 2L"])
-    def hamburguer(mensagem):
-        bot.send_message(mensagem.chat.id, "Pedido Recebido com Sucesso")
+@app.on_message(filters.command('dev'))
+async def dev(client, message):
 
-    @bot.message_handler(commands=["Galão de Agua"])
-    def salada(mensagem):
-        bot.send_message(mensagem.chat.id, "Não tem salada não, clique aqui para iniciar: /iniciar")
+    await message.reply('Desenvolvido por **Lucas Viegas**')
 
-    @bot.message_handler(commands=["pedido"])
-    def opcao2(mensagem):
-        texto = """
-        🤖 AguaoDelivery 🤖
-    🤖 Venda de Agua 🤖
-    ⏰ Horario:  24/7 ⏰
-    
-    ➖➖➖➖➖➖➖➖➖➖➖
-    Produtos em estoque:
-    Água 1 Litro         | R$2,00
-    Água 2 Litro         | R$4,00
-    Galão de Agua     | R$8,00
-    ➖➖➖➖➖➖➖➖➖➖➖
-    
-    Entrega em todos os bairros da Grande São Luís.
-    
-    Taxa de Entrega R$ 5,00"""
-        bot.send_message(mensagem.chat.id, texto)
+@app.on_message()
+async def hello(client, message):
+
+    await message.reply('Desculpe! Não Entendi')
 
 
 
-    @bot.message_handler(commands=["cadastro"])
-    def cadastro(mensagem):
-        print(mensagem.text)
+app.add_handler(MessageHandler(start_command))
+app.add_handler(MessageHandler(dev))
+app.add_handler(MessageHandler(callbacks))
+app.add_handler(MessageHandler(pedidos))
+app.add_handler(MessageHandler(escolhas))
 
-        bot.send_message(mensagem.chat.id, "Digite seu nome ex: /nome Nome Sobrenome")
+app.add_handler(MessageHandler(pedido_one))
+app.add_handler(MessageHandler(pedido_two))
+app.add_handler(MessageHandler(pedido_three))
+app.add_handler(MessageHandler(fechando_carrinho))
+app.add_handler(MessageHandler(anotando_pedido))
 
-    @bot.message_handler(commands=["nome"])
-    def nome(mensagem):
-        name = mensagem.text
-        nome = name.replace("/nome ", '')
-        user[f'{mensagem.chat.id}'].nome = nome
-
-        bot.send_message(mensagem.chat.id, "Digite seu cpf agora ex: /cpf 99999999999")
-
-        return nome
-
-    @bot.message_handler(commands=["cpf"])
-    def cpf(mensagem):
-        cpf = mensagem.text
-        cpf = cpf.replace("/cpf ", '')
-        user[f'{mensagem.chat.id}'].cpf = cpf
-        print(user[f'{mensagem.chat.id}'].nome, user[f'{mensagem.chat.id}'].cpf)
-        bot.send_message(mensagem.chat.id, "Estamos quase lá. Digite seu telefone ex: /telefone 99999999999")
-
-    @bot.message_handler(commands=["telefone"])
-    def cpf(mensagem):
-        telefone = mensagem.text
-        print(telefone.replace("/telefone ", ''))
-        telefone = telefone.replace("/telefone ", '')
-        user[f'{mensagem.chat.id}'].telefone = telefone
-
-        bot.send_message(mensagem.chat.id, "Para concluir o seu cadastro envie /cadastrar")
-
-    @bot.message_handler(commands=["cadastrar"])
-    def cadastrar(mensagem):
-
-        usuario = user[f'{mensagem.chat.id}']
-        print(usuario.nome, usuario.telefone, usuario.cpf)
-        ca = cad(usuario.nome, usuario.cpf, usuario.telefone)
-        print(ca)
-        bot.send_message(mensagem.chat.id, f'{ca}')
-
-
-
-
-
-
-    def verificar(mensagem):
-        return True
-
-    class User:
-        def __init__(self, chat_id, nome, telefone, cpf):
-            self.chat_id = chat_id
-            self.nome = nome
-            self.telefone = telefone
-            self.cpf = cpf
-
-    @bot.message_handler(func=verificar)
-    def responder(mensagem):
-        user["{0}".format(mensagem.chat.id)] = User(mensagem.chat.id, nome='', telefone='', cpf='')
-        print(user)
-
-        texto = """
-        🤖 AguaoDelivery 🤖
-    🤖 Bem-vindo(a) ao AguaoDelivery 🤖
-    🤖 Venda de Agua 🤖
-    ⏰ Horario:  24/7 ⏰
-    
-    ➖➖➖➖➖➖➖➖➖➖➖
-    Serviços executados:
-    
-        - /cadastro Fazer o cadastro
-        - /atualizar Pode atualizar informações cadastradas
-        - /pedido Escolha o seu pedido
-        - /status Acompanhe o status do seu pedido
-    
-    ➖➖➖➖➖➖➖➖➖➖➖
-    
-    Responder qualquer outra coisa não vai funcionar, clique em uma das opções"""
-        bot.reply_to(mensagem, texto)
-
-    @bot.message_handler()
-    def responder_nome(mensagem):
-        print(mensagem.text)
-    bot.infinity_polling()
-except:
-    pass
-
+app.run()
