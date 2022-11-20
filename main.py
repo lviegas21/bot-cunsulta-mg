@@ -14,7 +14,7 @@ from pyrogram.types import (
 @app.on_message(filters.command('help') |filters.command('start'))
 async def start_command(client, message):
     user["{0}".format(message.chat.id)] = User(message.chat.id, nome='', telefone='', cpf='')
-    pedido["{0}".format(message.chat.id)] = Pedido(chat_id=message.chat.id, quantidade='', id_produto='')
+    pedido["{0}".format(message.chat.id)] = Pedido(chat_id=message.chat.id, quantidade='', id_produto='', total='')
     await message.reply(
         'Esse é o menu para pedir ajuda!\n'
         'Use **/start** para iniciar o bot!\n'

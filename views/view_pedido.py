@@ -46,8 +46,13 @@ async def escolhas(client, message):
     global isQuantidade
     if isPedido == False:
         padrao = '([0-9])'
-        resposta = re.findall(padrao, message.text)
+
         if isQuantidade == True:
+            print('entrei')
+            resposta = re.findall(padrao, message.text)
+            print(resposta)
+            pedido[f'{message.chat.id}'].quantidade = message.text
+
 
             return await fechando_carrinho(client, message)
         else:
@@ -76,7 +81,7 @@ async def pedido_one(client, message):
 
     isPedido = False
 
-    pedido[f'{message.chat.id}'].id_produto = 1
+    pedido[f'{message.chat.id}'].id_produto = '1'
     await message.reply(
         'Digite a quantidade Agua de 1 Litro',
         reply_markup=ReplyKeyboardMarkup(
@@ -128,7 +133,7 @@ async def pedido_three(client, message):
 async def fechando_carrinho(client, message):
     nome = pedido[f'{message.chat.id}'].id_produto
     produto = pedido[f'{message.chat.id}'].id_produto
-    qtd = pedido[f'{message.chat.id}'].quantidade = message.text
+    qtd = pedido[f'{message.chat.id}'].quantidade
 
     if int(produto) == 1:
         produto = 2
@@ -138,6 +143,8 @@ async def fechando_carrinho(client, message):
         produto = 8
     print(produto, qtd)
     resultado = produto * int(qtd)
+
+    pedido[f'{message.chat.id}'].total = resultado
 
     await message.reply(
         f"""
@@ -158,8 +165,9 @@ Digite (S) para encerrar seus pedidos e (N) para ir ao Menu""", reply_markup=Rep
 @app.on_message(filters.regex('S'))
 async def anotando_pedido(client, message):
     ped = pedido[f'{message.chat.id}']
-    print(ped)
-    pedido_fechado()
+    msg = await pedido_fechado(ped)
+    await message.reply(f'{msg}')
+
 
 
 
